@@ -24,22 +24,68 @@ const createCard = (req, res) => {
 
 const deleteCard = (req, res) => {
   return Card.findByIdAndRemove(req.params.id)
+  .orFail(() => {
+    const error = new Error('Пользователь не найден');
+    err.name = 'UserNotFoundError';
+    throw error;
+  })
     .then((card) => {
       res.status(200).send(card)
     })
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === 'UserNotFoundError') {
+        res.status(404).send(err.message);
+      } else if (err.name === "ValidationError") {
+        res.status(400).send("Некорректные данные");
+      }
+      else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 };
 
 const likeCard = (req, res) => Card.findByIdAndUpdate(
   req.params.cardId,
   { $addToSet: { likes: req.user._id } },
-  { new: true },
+  { new: true }
+  .orFail(() => {
+    const error = new Error('Передана несуществующий id карточки');
+    err.name = 'UserNotFoundError';
+    throw error;
+  })
+  .then((card) => {res.send(card)})
+  .catch((err) => {
+    if (err.name === 'UserNotFoundError') {
+      res.status(404).send(err.message);
+    } else if (err.name === "ValidationError") {
+      res.status(400).send("Некорректные данные");
+    }
+    else {
+      res.status(500).send({ message: 'Произошла ошибка' });
+    }
+  })
 )
 
 const dislikeCard = (req, res) => Card.findByIdAndUpdate(
   req.params.cardId,
   { $pull: { likes: req.user._id } },
-  { new: true },
+  { new: true }
+  .orFail(() => {
+    const error = new Error('Передана несуществующий id карточки');
+    err.name = 'UserNotFoundError';
+    throw error;
+  })
+  .then((card) => {res.send(card)})
+  .catch((err) => {
+    if (err.name === 'UserNotFoundError') {
+      res.status(404).send(err.message);
+    } else if (err.name === "ValidationError") {
+      res.status(400).send("Некорректные данные");
+    }
+    else {
+      res.status(500).send({ message: 'Произошла ошибка' });
+    }
+  })
 )
 
 
