@@ -7,10 +7,10 @@ const getUsers = (req, res) => {
 }
 
 const getUser = (req, res) => {
-  return User.findById(req.params.id)
+  return User.findById(req.params.userId)
     .orFail(() => {
       const error = new Error('Пользователь не найден');
-      err.name = 'UserNotFoundError';
+      error.name = 'UserNotFoundError';
       throw error;
     })
     .then(user => {
@@ -18,7 +18,7 @@ const getUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'UserNotFoundError') {
-        res.status(404).send(err.message);
+        res.status(404).send({ message: err.message });
       } else {
         res.status(500).send({ message: 'Произошла ошибка' });
       }
@@ -35,20 +35,19 @@ const createUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(400).send("Некорректные данные")
+        res.status(400).send({ message: "Некорректные данные" })
       }
-      res.status(500).send({ message: err.message })
+      res.status(500).send({ message: err.message });
     });
 }
 
 const upDateUser = (req, res) => {
   const { name, about } = req.body;
-
-  return User.findByIdAndUpdate(req.params.id, { name, about }, { new: true })
-
+  
+  return User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .orFail(() => {
       const error = new Error('Пользователь не найден');
-      err.name = 'UserNotFoundError';
+      error.name = 'UserNotFoundError';
       throw error;
     })
     .then((user) => {
@@ -56,9 +55,9 @@ const upDateUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'UserNotFoundError') {
-        res.status(404).send(err.message);
+        res.status(404).send({ message: err.message });
       } else if (err.name === "ValidationError") {
-        res.status(400).send("Некорректные данные");
+        res.status(400).send({ message: "Некорректные данные" });
       }
       else {
         res.status(500).send({ message: 'Произошла ошибка' });
@@ -69,10 +68,10 @@ const upDateUser = (req, res) => {
 const upDateAvatar = (req, res) => {
   const { avatar } = req.body;
 
-  return User.findByIdAndUpdate(req.params.id, { avatar }, { new: true })
+  return User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .orFail(() => {
       const error = new Error('Пользователь не найден');
-      err.name = 'UserNotFoundError';
+      error.name = 'UserNotFoundError';
       throw error;
     })
     .then((user) => {
@@ -80,7 +79,7 @@ const upDateAvatar = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'UserNotFoundError') {
-        res.status(404).send(err.message);
+        res.status(404).send({ message: err.message });
       } else if (err.name === "ValidationError") {
         res.status(400).send("Некорректные данные");
       }

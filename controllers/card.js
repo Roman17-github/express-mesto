@@ -26,7 +26,7 @@ const deleteCard = (req, res) => {
   return Card.findByIdAndRemove(req.params.id)
   .orFail(() => {
     const error = new Error('Пользователь не найден');
-    err.name = 'UserNotFoundError';
+    error.name = 'UserNotFoundError';
     throw error;
   })
     .then((card) => {
@@ -34,7 +34,7 @@ const deleteCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'UserNotFoundError') {
-        res.status(404).send(err.message);
+        res.status(404).send({ message: err.message });
       } else if (err.name === "ValidationError") {
         res.status(400).send("Некорректные данные");
       }
@@ -50,14 +50,14 @@ const likeCard = (req, res) => Card.findByIdAndUpdate(
   { new: true }
   .orFail(() => {
     const error = new Error('Передана несуществующий id карточки');
-    err.name = 'UserNotFoundError';
+    error.name = 'UserNotFoundError';
     throw error;
   })
   .then((card) => {res.send(card)})
   .catch((err) => {
     if (err.name === 'UserNotFoundError') {
-      res.status(404).send(err.message);
-    } else if (err.name === "ValidationError") {
+      res.status(404).send({ message: err.message });
+    } else if (err.name === "CastError") {
       res.status(400).send("Некорректные данные");
     }
     else {
@@ -72,14 +72,14 @@ const dislikeCard = (req, res) => Card.findByIdAndUpdate(
   { new: true }
   .orFail(() => {
     const error = new Error('Передана несуществующий id карточки');
-    err.name = 'UserNotFoundError';
+    error.name = 'UserNotFoundError';
     throw error;
   })
   .then((card) => {res.send(card)})
   .catch((err) => {
     if (err.name === 'UserNotFoundError') {
-      res.status(404).send(err.message);
-    } else if (err.name === "ValidationError") {
+      res.status(404).send({ message: err.message });
+    } else if (err.name === "CastError") {
       res.status(400).send("Некорректные данные");
     }
     else {
