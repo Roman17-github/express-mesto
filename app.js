@@ -3,6 +3,8 @@ const app = express();
 const { PORT = 3000 } = process.env;
 const mongoose = require("mongoose");
 
+const {login,createUser} = require('./controllers/users')
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -20,6 +22,8 @@ app.use((req, res, next) => {
 
 app.use("/users", require("./routes/users"));
 app.use("/cards", require("./routes/cards"));
+app.post('/signin', login);
+app.post('/signup', createUser);
 app.use("/", (req, res) => {
   res.status(404).send({ message: "Ресурс не найден" });
 });
