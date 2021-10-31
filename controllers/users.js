@@ -1,21 +1,20 @@
-const User = require("../models/user");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const user = require("../models/user");
+const User = require('../models/user');
 
 const getUsers = (req, res, next) => {
   return User.find({})
     .then((users) => res.send(users))
     .catch((err) => {
-      next(err)
+      next(err);
     });
 };
 
 const getUser = (req, res, next) => {
   return User.findById(req.params.userId)
     .orFail(() => {
-      const error = new Error("Пользователь не найден");
-      error.name = "UserNotFoundError";
+      const error = new Error('Пользователь не найден');
+      error.name = 'UserNotFoundError';
       error.statusCode(404);
       throw error;
     })
@@ -23,11 +22,11 @@ const getUser = (req, res, next) => {
       return res.status(200).send(user);
     })
     .catch((err) => {
-      if(err.name === "CastError") {
+      if (err.name === 'CastError') {
         err.statusCode = 400;
-        err.message = "неккоректный id";
+        err.message = 'неккоректный id';
       }
-      next(err)
+      next(err);
     });
 };
 
@@ -37,7 +36,7 @@ const createUser = (req, res, next) => {
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        const error = new Error("Такой email уже существует ");
+        const error = new Error('Такой email уже существует ');
         error.statusCode = 409;
         throw error;
       }
@@ -48,11 +47,10 @@ const createUser = (req, res, next) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if(err.name === "ValidationError") {
+      if (err.name === 'ValidationError') {
         err.statusCode = 400;
-        err.message = "неккоректный email"
       }
-      next(err)
+      next(err);
     });
 };
 
@@ -74,12 +72,12 @@ const upDateUser = (req, res, next) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if(err.name === "ValidationError") {
+      if (err.name === "ValidationError") {
         err.statusCode = 400;
-        err.message = "неккоректные данные"
+        err.message = "некорректные данные"
       } else if (err.name === "CastError") {
         err.statusCode = 400;
-        err.message = "неккоректный id";
+        err.message = "некорректный id";
       }
       next(err)
     });
@@ -103,12 +101,12 @@ const upDateAvatar = (req, res, next) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if(err.name === "ValidationError") {
+      if (err.name === "ValidationError") {
         err.statusCode = 400;
-        err.message = "неккоректные данные"
+        err.message = "некорректные данные"
       } else if (err.name === "CastError") {
         err.statusCode = 400;
-        err.message = "неккоректный id";
+        err.message = "некорректный id";
       }
       next(err)
     });
@@ -117,24 +115,23 @@ const upDateAvatar = (req, res, next) => {
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
-  return user.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' });
-
+      res.status(200).send({ token: token });
       res.cookie('jwt', token, {
         maxAge: 3600000,
         httpOnly: true
       })
-        .catch((err) => {
-          if(err.name === 'InvalidLogin') {
-            err.message = "неправильная почта или пароль";
-            err.statusCode = 401;
-          }
-          next(err)
-        })
+
     })
-
-
+    .catch((err) => {
+      if (err.name === 'InvalidLogin') {
+        err.message = "неправильная почта или пароль";
+        err.statusCode = 401;
+      }
+      next(err)
+    })
 
 }
 
