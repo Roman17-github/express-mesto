@@ -3,6 +3,13 @@ const { getUsers, getUser, upDateUser, upDateAvatar } = require('../controllers/
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 
+const validateURL = (value) => {
+  if (!validator.isURL(value, { require_protocol: true })) {
+    throw new Error('Неправильный формат ссылки');
+  }
+  return value;
+};
+
 router.get('/', getUsers);
 router.get('/:userId', celebrate({
   params: Joi.object().keys({
@@ -17,7 +24,7 @@ router.patch('/me', celebrate({
 }), upDateUser);
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().validate(validator.isURL())
+    avatar: Joi.string().required().custom(validateURL)
   })
 }), upDateAvatar);
 
