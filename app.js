@@ -4,13 +4,14 @@ const { PORT = 3000 } = process.env;
 const mongoose = require("mongoose");
 const auth = require('./middlewares/auth');
 const { celebrate, Joi } = require('celebrate');
+const cookieParser = require('cookie-parser');
 
 
 const { login, createUser } = require('./controllers/users')
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cookieParser());
 mongoose.connect("mongodb://localhost:27017/mestodb", {
   useNewUrlParser: true,
 });
@@ -38,10 +39,12 @@ app.use("/", (req, res,next) => {
 });
 
 app.use((err, req, res, next) => {
-  if (!err.statusCode) {
+  
+  if (err.statusCode) {
+    res.status(err.statusCode).send({ message: err.message })
+  }else{
     res.status(500).send({ message: "Ошибка на сервере" })
-  }
-  res.status(err.statusCode).send({ message: err.message })
+  } 
 })
 
 app.listen(PORT);
