@@ -3,14 +3,11 @@ const AuthError = require('../errors/AuthError');
 
 
 module.exports = (req, res, next) => {
-  console.log(req.cookies)
-  const { authorization } = req.cookies;
+  const { token } = req.cookies;
   
-  if (!authorization || !authorization.startsWith('Bearer ')) {
+  if (!token) {
     throw new AuthError('Необходима авторизация');
   }
-
-  const token = authorization.replace('Bearer ', '');
 
   let payload
 

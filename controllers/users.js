@@ -118,16 +118,15 @@ const login = (req, res, next) => {
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' });
-      res.status(200).send({ token: token });
       res.cookie('jwt', token, {
         maxAge: 3600000,
         httpOnly: true
-      })
-
+      });
+      res.status(200).send({ token: token });
+      
     })
     .catch((err) => {
-      if (err.name === 'InvalidLogin') {
-        err.message = "неправильная почта или пароль";
+      if (err.message === 'InvalidLogin') {
         err.statusCode = 401;
       }
       next(err)

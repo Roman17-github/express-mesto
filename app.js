@@ -5,8 +5,6 @@ const mongoose = require("mongoose");
 const auth = require('./middlewares/auth');
 const { celebrate, Joi } = require('celebrate');
 const cookieParser = require('cookie-parser');
-
-
 const { login, createUser } = require('./controllers/users')
 
 app.use(express.json());
@@ -32,19 +30,17 @@ app.use(auth);
 app.use("/users", require("./routes/users"));
 app.use("/cards", require("./routes/cards"));
 
-app.use("/", (req, res,next) => {
+app.use("/", (req, res, next) => {
   const err = new Error("Ресурс не найден");
   err.statusCode = 404;
   next(err);
 });
 
 app.use((err, req, res, next) => {
-  
-  if (err.statusCode) {
-    res.status(err.statusCode).send({ message: err.message })
-  }else{
-    res.status(500).send({ message: "Ошибка на сервере" })
-  } 
+  if (!err.statusCode) {
+    res.status(500).send({ message: "Ошибка на сервере" });
+  }
+   res.status(err.statusCode).send({ message: err.message })
 })
 
 app.listen(PORT);
