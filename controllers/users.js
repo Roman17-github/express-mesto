@@ -44,7 +44,7 @@ const createUser = (req, res, next) => {
     })
     .then((hash) => User.create({ name, about, avatar, email, password: hash }))
     .then((user) => {
-      res.status(200).send(user);
+      res.status(200).send(`Пользователь ${user.name} успешно зарегистрирован`);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -123,7 +123,7 @@ const login = (req, res, next) => {
         httpOnly: true
       });
       res.status(200).send({ token: token });
-      
+
     })
     .catch((err) => {
       if (err.message === 'InvalidLogin') {

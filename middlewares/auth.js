@@ -1,20 +1,21 @@
-const jwt = require('jsonwebtoken');
+const jwtverify = require('jsonwebtoken');
 const AuthError = require('../errors/AuthError');
 
 
 module.exports = (req, res, next) => {
-  const { token } = req.cookies;
-  
-  if (!token) {
+  const { jwt } = req.cookies;
+  console.log(jwt);
+  if (!jwt) {
     throw new AuthError('Необходима авторизация');
   }
 
   let payload
 
   try {
-    payload = jwt.verify(token, 'super-strong-secret')
+    payload = jwtverify.verify(jwt, 'super-strong-secret')
   } catch (err) {
     next(new AuthError('Необходима авторизация'));
+    console.log(err);
   }
 
   req.user = payload;

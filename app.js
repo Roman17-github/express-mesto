@@ -37,10 +37,15 @@ app.use("/", (req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  if (!err.statusCode) {
+  if (err.statusCode) {
+    res.status(err.statusCode).send({ message: err.message });
+  } else if (err.message === 'Validation failed') {
+    res.status(400).send({ message: "Неправильный формат Email" })
+  }
+  else {
     res.status(500).send({ message: "Ошибка на сервере" });
   }
-   res.status(err.statusCode).send({ message: err.message })
+
 })
 
 app.listen(PORT);
