@@ -15,24 +15,27 @@ const createCard = (req, res, next) => {
       res.status(200).send(card);
     })
     .catch((err) => {
-      if(err.name === "ValidationError") {
+      if (err.name === "ValidationError") {
         err.statusCode = 400;
         err.message = "неккоректные данные"
       }
+      console.log(err);
       next(err)
     });
 };
 
 const deleteCard = (req, res, next) => {
+
   return Card.findById(req.params.cardId)
     .orFail(() => {
       const error = new Error("Карточка не найдена");
       error.name = "CardNotFoundError";
+      error.statusCode = 404;
       throw error;
     })
-    .then(() => {
-      if (Card.owner.toString() === req.user._id) {
-        Card.deleteOne({ _id: Card._id })
+    .then((card) => {
+      if (card.owner.toString() === req.user._id) {
+        card.deleteOne({ _id: Card._id })
           .then(() => {
             res.status(200).send({ message: "Карточка удалена" });
           })
@@ -42,9 +45,10 @@ const deleteCard = (req, res, next) => {
         error.statusCode = 403;
         throw error;
       }
+
     })
     .catch((err) => {
-      if(err.name === "CastError") {
+      if (err.name === "CastError") {
         err.statusCode = 400;
         err.message = "неккоректный id";
       }
@@ -68,7 +72,7 @@ const likeCard = (req, res, next) => {
       res.send(card);
     })
     .catch((err) => {
-      if(err.name === "CastError") {
+      if (err.name === "CastError") {
         err.statusCode = 400;
         err.message = "неккоректный id";
       }
@@ -85,13 +89,14 @@ const dislikeCard = (req, res, next) => {
     .orFail(() => {
       const error = new Error("Карточка не найдена");
       error.name = "CardNotFoundError";
+      error.statusCode(404);
       throw error;
     })
     .then((card) => {
       res.send(card);
     })
     .catch((err) => {
-      if(err.name === "CastError") {
+      if (err.name === "CastError") {
         err.statusCode = 400;
         err.message = "неккоректный id"
       }

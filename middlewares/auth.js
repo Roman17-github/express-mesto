@@ -4,7 +4,6 @@ const AuthError = require('../errors/AuthError');
 
 module.exports = (req, res, next) => {
   const { jwt } = req.cookies;
-  console.log(jwt);
   if (!jwt) {
     throw new AuthError('Необходима авторизация');
   }

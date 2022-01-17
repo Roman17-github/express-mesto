@@ -3,7 +3,7 @@ const app = express();
 const { PORT = 3000 } = process.env;
 const mongoose = require("mongoose");
 const auth = require('./middlewares/auth');
-const { celebrate, Joi } = require('celebrate');
+const { celebrate, Joi, errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
 const { login, createUser } = require('./controllers/users')
 
@@ -17,7 +17,10 @@ mongoose.connect("mongodb://localhost:27017/mestodb", {
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required()
+    password: Joi.string().required(),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().min(2)
   }),
 }), createUser);
 app.post('/signin', celebrate({
@@ -36,15 +39,12 @@ app.use("/", (req, res, next) => {
   next(err);
 });
 
+app.use(errors());
+
 app.use((err, req, res, next) => {
-  if (err.statusCode) {
-    res.status(err.statusCode).send({ message: err.message });
-  } else if (err.message === 'Validation failed') {
-    res.status(400).send({ message: "Неправильный формат Email" })
-  }
-  else {
-    res.status(500).send({ message: "Ошибка на сервере" });
-  }
+  const status = err.statusCode || 500;
+  const { message } = err;
+  res.status(status).send({ error: message || "Ошибка на сервере" })
 
 })
 

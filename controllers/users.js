@@ -15,7 +15,7 @@ const getUser = (req, res, next) => {
     .orFail(() => {
       const error = new Error('Пользователь не найден');
       error.name = 'UserNotFoundError';
-      error.statusCode(404);
+      error.statusCode = 404;
       throw error;
     })
     .then((user) => {
@@ -44,7 +44,7 @@ const createUser = (req, res, next) => {
     })
     .then((hash) => User.create({ name, about, avatar, email, password: hash }))
     .then((user) => {
-      res.status(200).send(`Пользователь ${user.name} успешно зарегистрирован`);
+      res.status(200).send({ message: `Пользователь ${user.name} успешно зарегистрирован` });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -65,7 +65,7 @@ const upDateUser = (req, res, next) => {
     .orFail(() => {
       const error = new Error("Пользователь не найден");
       error.name = "UserNotFoundError";
-      error.statusCode(404);
+      error.statusCode = 404;
       throw error;
     })
     .then((user) => {
@@ -94,7 +94,7 @@ const upDateAvatar = (req, res, next) => {
     .orFail(() => {
       const error = new Error("Пользователь не найден");
       error.name = "UserNotFoundError";
-      error.statusCode(404);
+      error.statusCode = 404;
       throw error;
     })
     .then((user) => {
