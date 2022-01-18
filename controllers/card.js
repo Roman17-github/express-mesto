@@ -89,7 +89,7 @@ const dislikeCard = (req, res, next) => {
     .orFail(() => {
       const error = new Error("Карточка не найдена");
       error.name = "CardNotFoundError";
-      error.statusCode(404);
+      error.statusCode = 404;
       throw error;
     })
     .then((card) => {
